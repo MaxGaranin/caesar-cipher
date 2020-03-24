@@ -1,16 +1,25 @@
 const { program } = require('commander');
-const caesar = require('./caesar-cipher');
+const path = require('path');
+const fs = require('fs');
+const { EncodeTransform, DecodeTransform } = require('./caesarCipher');
 
 program
-  .option('-d, --debug', 'output extra debugging')
-  .option('-s, --small', 'small pizza size')
-  .option('-p, --pizza-type <type>', 'flavour of pizza');
+  .option('-s, --shift <shift>', 'a shift')
+  .option('-i, --input <input>', 'an input file')
+  .option('-o, --output <output>', 'an output file')
+  .option('-a, --action <type>', 'an action encode/decode');
  
 program.parse(process.argv);
- 
-if (program.debug) console.log(program.opts());
-console.log('pizza details:');
-if (program.small) console.log('- small pizza size');
-if (program.pizzaType) console.log(`- ${program.pizzaType}`);
 
-caesar.encode();
+const myReadable = fs.createReadStream(
+  path.join(__dirname, program.input)
+);
+
+const myWritable = fs.createReadStream(
+  path.join(__dirname, program.output)
+);
+
+const encoder = new EncodeTransform({ shift: program.shift });
+
+myReadable.pipe(encoder).pipe(myWritable);
+
