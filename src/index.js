@@ -1,25 +1,52 @@
-const { program } = require('commander');
-const path = require('path');
 const fs = require('fs');
+const { program } = require('commander');
 const { EncodeTransform, DecodeTransform } = require('./caesarCipher');
 
 program
-  .option('-s, --shift <shift>', 'a shift')
+  .requiredOption('-s, --shift <shift>', 'a shift')
   .option('-i, --input <input>', 'an input file')
   .option('-o, --output <output>', 'an output file')
-  .option('-a, --action <type>', 'an action encode/decode');
- 
+  .requiredOption('-a, --action <type>', 'an action encode/decode');
+
 program.parse(process.argv);
 
-const myReadable = fs.createReadStream(
-  path.join(__dirname, program.input)
-);
+const caesarCoder = null;
 
-const myWritable = fs.createReadStream(
-  path.join(__dirname, program.output)
-);
+if (program.action == 'encode') {
+  const encoder = new EncodeTransform({ shift: program.shift });
+  encoder.on('error', (err) => {
+    console.error('There was an error encoding the data!', err);
+    process.exit(-1);
+  });
+  caesarCoder = encoder;
+} else if (program.action == 'decode') {
+  const decoder = new DecodeTransform({ shift: program.shift });
+  decoder.on('error', (err) => {
+    console.error('There was an error decoding the data!', err);
+    process.exit(-1);
+  });
+  caesarCoder = decoder;
+} else {
+  console.error(`Wrong 'action' parameter, must be encode/decode.`);
+  process.exit(-1);
+}
 
-const encoder = new EncodeTransform({ shift: program.shift });
+const reader = program.input
+  ? fs.createReadStream(program.input)
+  : process.stdin;
 
-myReadable.pipe(encoder).pipe(myWritable);
+reader.on('error', (err) => {
+  console.error(`There was an error reading the file: '${program.input}'!`);
+  process.exit(-1);
+});
 
+const writer = program.output
+  ? fs.createWriteStream(program.output)
+  : process.stdout;
+
+writer.on('error', (err) => {
+  console.error(`There was an error writing the file '${program.output}'!`);
+  process.exit(-1);
+});
+
+reader.pipe(caesarCoder).pipe(writer);
