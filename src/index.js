@@ -10,17 +10,18 @@ program
 
 program.parse(process.argv);
 
-const caesarCoder = null;
+const shift = +program.shift;
 
+let caesarCoder = null;
 if (program.action == 'encode') {
-  const encoder = new EncodeTransform({ shift: program.shift });
+  const encoder = new EncodeTransform({ shift: shift });
   encoder.on('error', (err) => {
     console.error('There was an error encoding the data!', err);
     process.exit(-1);
   });
   caesarCoder = encoder;
 } else if (program.action == 'decode') {
-  const decoder = new DecodeTransform({ shift: program.shift });
+  const decoder = new DecodeTransform({ shift: shift });
   decoder.on('error', (err) => {
     console.error('There was an error decoding the data!', err);
     process.exit(-1);
