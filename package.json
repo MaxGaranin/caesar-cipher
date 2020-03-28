@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "caesar-cli": "node ./src/index.js"
+    "start": "node ./src/index.js",
+    "example": "npm start node ./src/index.js -- -s 2 -a encode"
   },
   "keywords": [],
   "author": "",
