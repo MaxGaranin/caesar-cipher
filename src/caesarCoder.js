@@ -20,9 +20,8 @@ function processCoding(str, shift, func) {
       return func(UPPER_LETTERS, ch, shift);
     } else if (charCode >= LOWER_MIN && charCode <= LOWER_MAX) {
       return func(LOWER_LETTERS, ch, shift);
-    } else {
-      return ch;
     }
+    return ch;
   });
 
   return result.join('');
@@ -44,5 +43,5 @@ function getUnshiftedLetter(str, ch, shift) {
 
 module.exports = {
   encode,
-  decode,
+  decode
 };

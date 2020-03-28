@@ -5,7 +5,7 @@ const { encode, decode } = require('./caesarCoder');
 class CaesarCipherTransform extends Transform {
   constructor(action, shift) {
     super();
-    
+
     if (action === ENCODE) {
       this._action = encode;
     } else if (action === DECODE) {
@@ -19,13 +19,13 @@ class CaesarCipherTransform extends Transform {
     try {
       const resultString = this._action(chunk.toString(), this._shift);
 
-      callback(null, resultString);
+      return callback(null, resultString);
     } catch (err) {
-      callback(err);
+      return callback(err);
     }
   }
 }
 
 module.exports = {
-  CaesarCipherTransform,
+  CaesarCipherTransform
 };

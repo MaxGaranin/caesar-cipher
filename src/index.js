@@ -13,8 +13,11 @@ program
 
 program.parse(process.argv);
 
-if (program.action !== ENCODE && program.action != DECODE) {
-  console.error(`Wrong action parameter '${program.action}', must be encode/decode.`);
+if (program.action !== ENCODE && program.action !== DECODE) {
+  console.error(
+    `Wrong action parameter '${program.action}', must be encode/decode.`
+  );
+  // eslint-disable-next-line no-process-exit
   process.exit(-1);
 }
 
@@ -28,13 +31,14 @@ const writer = program.output
   ? fs.createWriteStream(program.output)
   : process.stdout;
 
+// eslint-disable-next-line node/no-unsupported-features/node-builtins
 const pipeline = util.promisify(stream.pipeline);
-pipeline(
-  reader,
-  caesarCoder,
-  writer
-).catch(err => {
-  console.error(`There was an error while processing encoding/decoding:\n${err.message}!`);  
-  process.exit(-1);
-});
-
+pipeline(reader, caesarCoder, writer)
+  .then(() => {})
+  .catch(err => {
+    console.error(
+      `There was an error while processing encoding/decoding:\n${err.message}!`
+    );
+    // eslint-disable-next-line no-process-exit
+    process.exit(-1);
+  });
