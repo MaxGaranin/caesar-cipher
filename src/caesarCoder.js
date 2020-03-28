@@ -6,27 +6,20 @@ const LOWER_MIN = 97;
 const LOWER_MAX = 122;
 
 function encode(str, shift) {
-  const result = str.split('').map(ch => {
-    const charCode = ch.charCodeAt(0);
-    if (charCode >= UPPER_MIN && charCode <= UPPER_MAX) {
-      return getShiftedLetter(UPPER_LETTERS, ch, shift);
-    } else if (charCode >= LOWER_MIN && charCode <= LOWER_MAX) {
-      return getShiftedLetter(LOWER_LETTERS, ch, shift);
-    } else {
-      return ch;
-    }
-  });
-
-  return result.join('');
+  return processCoding(str, shift, getShiftedLetter);
 }
 
 function decode(str, shift) {
+  return processCoding(str, shift, getUnshiftedLetter);
+}
+
+function processCoding(str, shift, func) {
   const result = str.split('').map(ch => {
     const charCode = ch.charCodeAt(0);
     if (charCode >= UPPER_MIN && charCode <= UPPER_MAX) {
-      return getUnshiftedLetter(UPPER_LETTERS, ch, shift);
+      return func(UPPER_LETTERS, ch, shift);
     } else if (charCode >= LOWER_MIN && charCode <= LOWER_MAX) {
-      return getUnshiftedLetter(LOWER_LETTERS, ch, shift);
+      return func(LOWER_LETTERS, ch, shift);
     } else {
       return ch;
     }

@@ -1,32 +1,23 @@
 const { Transform } = require('stream');
+const { ENCODE, DECODE } = require('./constants');
 const { encode, decode } = require('./caesarCoder');
 
-class EncodeTransform extends Transform {
-  constructor({ shift }) {
+class CaesarCipherTransform extends Transform {
+  constructor(action, shift) {
     super();
-    this._shift = shift;
-  }
-
-  _transform(chunk, encoding, callback) {
-    try {
-      const resultString = encode(chunk.toString(), this._shift);
-
-      callback(null, resultString);
-    } catch (err) {
-      callback(err);
+    
+    if (action === ENCODE) {
+      this._action = encode;
+    } else if (action === DECODE) {
+      this._action = decode;
     }
-  }
-}
 
-class DecodeTransform extends Transform {
-  constructor({ shift }) {
-    super();
-    this._shift = shift;
+    this._shift = +shift;
   }
 
   _transform(chunk, encoding, callback) {
     try {
-      const resultString = decode(chunk.toString(), this._shift);
+      const resultString = this._action(chunk.toString(), this._shift);
 
       callback(null, resultString);
     } catch (err) {
@@ -36,6 +27,5 @@ class DecodeTransform extends Transform {
 }
 
 module.exports = {
-  EncodeTransform,
-  DecodeTransform
+  CaesarCipherTransform,
 };

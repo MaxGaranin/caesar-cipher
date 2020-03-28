@@ -2,7 +2,8 @@ const fs = require('fs');
 const stream = require('stream');
 const util = require('util');
 const { program } = require('commander');
-const { EncodeTransform, DecodeTransform } = require('./caesarCoderStream');
+const { ENCODE, DECODE } = require('./constants');
+const { CaesarCipherTransform } = require('./caesarCoderStream');
 
 program
   .requiredOption('-s, --shift <shift>', 'a shift')
@@ -12,19 +13,12 @@ program
 
 program.parse(process.argv);
 
-const shift = +program.shift;
-
-let caesarCoder = null;
-if (program.action == 'encode') {
-  const encoder = new EncodeTransform({ shift: shift });
-  caesarCoder = encoder;
-} else if (program.action == 'decode') {
-  const decoder = new DecodeTransform({ shift: shift });
-  caesarCoder = decoder;
-} else {
-  console.error(`Wrong 'action' parameter, must be encode/decode.`);
+if (program.action !== ENCODE && program.action != DECODE) {
+  console.error(`Wrong action parameter '${program.action}', must be encode/decode.`);
   process.exit(-1);
 }
+
+const caesarCoder = new CaesarCipherTransform(program.action, +program.shift);
 
 const reader = program.input
   ? fs.createReadStream(program.input)
