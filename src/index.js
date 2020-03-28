@@ -1,6 +1,8 @@
 const fs = require('fs');
+const stream = require('stream');
+const util = require('util');
 const { program } = require('commander');
-const { EncodeTransform, DecodeTransform } = require('./caesarCipher');
+const { EncodeTransform, DecodeTransform } = require('./caesarCoderStream');
 
 program
   .requiredOption('-s, --shift <shift>', 'a shift')
@@ -15,17 +17,9 @@ const shift = +program.shift;
 let caesarCoder = null;
 if (program.action == 'encode') {
   const encoder = new EncodeTransform({ shift: shift });
-  encoder.on('error', (err) => {
-    console.error('There was an error encoding the data!', err);
-    process.exit(-1);
-  });
   caesarCoder = encoder;
 } else if (program.action == 'decode') {
   const decoder = new DecodeTransform({ shift: shift });
-  decoder.on('error', (err) => {
-    console.error('There was an error decoding the data!', err);
-    process.exit(-1);
-  });
   caesarCoder = decoder;
 } else {
   console.error(`Wrong 'action' parameter, must be encode/decode.`);
@@ -36,18 +30,17 @@ const reader = program.input
   ? fs.createReadStream(program.input)
   : process.stdin;
 
-reader.on('error', (err) => {
-  console.error(`There was an error reading the file: '${program.input}'!`);
-  process.exit(-1);
-});
-
 const writer = program.output
   ? fs.createWriteStream(program.output)
   : process.stdout;
 
-writer.on('error', (err) => {
-  console.error(`There was an error writing the file '${program.output}'!`);
+const pipeline = util.promisify(stream.pipeline);
+pipeline(
+  reader,
+  caesarCoder,
+  writer
+).catch(err => {
+  console.error(`There was an error while processing encoding/decoding:\n${err.message}!`);  
   process.exit(-1);
 });
 
-reader.pipe(caesarCoder).pipe(writer);
