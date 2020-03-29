@@ -1,3 +1,5 @@
+/* eslint-disable no-process-exit */
+
 const fs = require('fs');
 const stream = require('stream');
 const util = require('util');
@@ -17,7 +19,13 @@ if (program.action !== ENCODE && program.action !== DECODE) {
   console.error(
     `Wrong action parameter '${program.action}', must be encode/decode.`
   );
-  // eslint-disable-next-line no-process-exit
+  process.exit(-1);
+}
+
+if (isNaN(+program.shift)) {
+  console.error(
+    `Wrong shift parameter '${program.shift}', must be integer value.`
+  );
   process.exit(-1);
 }
 
@@ -39,6 +47,5 @@ pipeline(reader, caesarCoder, writer)
     console.error(
       `There was an error while processing encoding/decoding:\n${err.message}!`
     );
-    // eslint-disable-next-line no-process-exit
     process.exit(-1);
   });

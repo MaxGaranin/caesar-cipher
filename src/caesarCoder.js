@@ -14,6 +14,8 @@ function decode(str, shift) {
 }
 
 function processCoding(str, shift, func) {
+  shift = shift % UPPER_LETTERS.length;
+
   const result = str.split('').map(ch => {
     const charCode = ch.charCodeAt(0);
     if (charCode >= UPPER_MIN && charCode <= UPPER_MAX) {
